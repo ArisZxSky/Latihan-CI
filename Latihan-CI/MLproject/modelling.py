@@ -2,15 +2,18 @@ import mlflow
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-import random
 import numpy as np
 
-# mlflow.set_tracking_uri("http://127.0.0.1:5000/")
-
+# Tidak perlu set_tracking_uri di CI/CD
 mlflow.set_experiment("Latihan Credit Scoring")
 
+# Enable auto logging
+mlflow.autolog()
+
+# Load dataset
 data = pd.read_csv("train_pca.csv")
 
+# Split data
 X_train, X_test, y_train, y_test = train_test_split(
     data.drop("Credit_Score", axis=1),
     data["Credit_Score"],
@@ -18,23 +21,36 @@ X_train, X_test, y_train, y_test = train_test_split(
     test_size=0.2
 )
 
+# Example for model signature
 input_example = X_train[0:5]
 
-with mlflow.start_run():
-    # Log Parameters
-    n_estimators = 505
-    max_depth = 37
-    mlflow.autolog()
-    # Train Model
-    model = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth)
-    mlflow.sklearn.log_model(
-        sk_model=model,
-        artifact_path="model",
-        input_example=input_example
-    )
+# Parameter model
+n_estimators = 505
+max_depth = 37
 
-    model.fit(X_train, y_train)
-    # Log Metrics
-    accuracy = model.score(X_test, y_test)
+# Log params (optional, auto-log also logs them)
+mlflow.log_param("n_estimators", n_estimators)
+mlflow.log_param("max_depth", max_depth)
 
-    mlflow.log_metric("accuracy", accuracy)
+# Train model
+model = RandomForestClassifier(
+    n_estimators=n_estimators,
+    max_depth=max_depth
+)
+
+model.fit(X_train, y_train)
+
+# Evaluate
+accuracy = model.score(X_test, y_test)
+
+# Log metric
+mlflow.log_metric("accuracy", accuracy)
+
+# Log model explicitly with input example
+mlflow.sklearn.log_model(
+    sk_model=model,
+    artifact_path="model",
+    input_example=input_example
+)
+
+print("Training completed successfully with accuracy:", accuracy)
