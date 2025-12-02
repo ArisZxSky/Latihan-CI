@@ -47,3 +47,7 @@ jobs:
       - name: Build Docker Model
         run: |
           mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "cc"
+          
+      - name: Tag Docker Image
+        run: |
+          docker tag cc ${{ secrets.DOCKER_HUB_USERNAME }}/cc:latest
