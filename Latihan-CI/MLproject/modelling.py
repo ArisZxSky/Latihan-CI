@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 import random
 import numpy as np
 
-mlflow.set_tracking_uri("http://127.0.0.1:5000/")
+# mlflow.set_tracking_uri("http://127.0.0.1:5000/")
 
 mlflow.set_experiment("Latihan Credit Scoring")
 
@@ -36,4 +36,5 @@ with mlflow.start_run():
     model.fit(X_train, y_train)
     # Log Metrics
     accuracy = model.score(X_test, y_test)
+
     mlflow.log_metric("accuracy", accuracy)
